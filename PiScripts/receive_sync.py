@@ -2,12 +2,24 @@
 
 import serial
 
-serial_port = serial.Serial('/dev/ttyUSB1', 9600)
-
+serial_port = serial.Serial('/dev/ttyACM0', 9600)
+f = open("image.jpg", "wb")
+read = False
+i = 1
 while True:
     try:
-        print serial_port.readline()
+        serial_port.reset_input_buffer()
+        while serial_port.inWaiting() >= 1:
+          read = True
+          print "Reading %d" % i
+          c = serial_port.read()
+          f.write(c)
+          i += 1
+        
+        #if read:
+          #break
     except KeyboardInterrupt:
         break
 
+f.close()
 serial_port.close()
