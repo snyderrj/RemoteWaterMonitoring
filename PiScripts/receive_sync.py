@@ -11,7 +11,7 @@ while True:
         serial_port.reset_input_buffer()
         while serial_port.inWaiting() >= 1:
           read = True
-          print "Reading %d" % i
+          print("Reading %d") % i
           c = serial_port.read()
           f.write(c)
           i += 1

@@ -1,3 +1,4 @@
+
 #include <Adafruit_VC0706.h>
 #include <SPI.h>
 #include <SoftwareSerial.h>         
@@ -8,10 +9,11 @@ Adafruit_VC0706 cam = Adafruit_VC0706(&cameraconnection);
 
 void setup() {
   
-  Serial.begin(9600);  
+  Serial.begin(9600, SERIAL_8N1);  
   // Try to locate the camera
-  cam.begin();
-
+  if(!cam.begin())
+     Serial.println("Camera not found!\n");
+  cam.setBaud9600();
   // Set the picture size - you can choose one of 640x480, 320x240 or 160x120 
   // Remember that bigger pictures take longer to transmit!
   
@@ -27,25 +29,39 @@ void loop() {
     if(i == 0)
     {
       uint16_t jpglen = 0;
-      while(jpglen = 0) {
+      while(jpglen == 0) {
         cam.takePicture();
       
         // Get the size of the image (frame) taken  
         jpglen = cam.frameLength();
-        Serial.println(jpglen);
+        //Serial.println(jpglen);
       }
       int oldjpglen = jpglen;
+      uint8_t bytesToRead;
       while (jpglen > 0) {
         // read 32 bytes at a time;
-        uint8_t *buffer;
-        uint8_t bytesToRead = min(32, jpglen); // change 32 to 64 for a speedup but may not work with all setups!
-        buffer = cam.readPicture(bytesToRead);
+        //uint8_t *buffer;
+        bytesToRead = min(16, jpglen); // change 32 to 64 for a speedup but may not work with all setups!
+        Serial.write(cam.readPicture(bytesToRead),bytesToRead);
         
-        Serial.write(buffer, bytesToRead);
+        //Serial.write(buffer, bytesToRead);
+        Serial.flush();
         delay(20);
 
         jpglen -= bytesToRead;
-      }   
+      }
+      
+      if (bytesToRead<32)
+        {
+          bytesToRead = 32-bytesToRead;
+          while(bytesToRead>0)
+          {
+            Serial.write((byte) 0x00);
+            bytesToRead = bytesToRead - 1;
+            Serial.flush();
+          }
+        }
+       //Serial.write(cam.readPicture(jpglen),jpglen);
     }
     i = 1;
   }

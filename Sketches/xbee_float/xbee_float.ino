@@ -10,12 +10,12 @@ void loop() {
   // put your main code here, to run repeatedly:
   if (digitalRead (SWITCHPIN) == LOW)
   {
-     Serial.println (1);
+     Serial.print (1);
      delay (500); 
   }
   else
   {
-    Serial.println (0);
+    Serial.print(0);
     delay(500);
   }
 }
